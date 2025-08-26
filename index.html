@@ -2,80 +2,110 @@
 <html lang="fr">
 <head>
 <meta charset="utf-8">
-<title>RG.card - Suivi avancé</title>
+<title>RG.card - Suivi ventes NFC</title>
 <style>
-  body { font-family: Arial, sans-serif; background:#111; color:#fff; text-align:center; padding:20px; }
-  h1 { font-size:22px; }
-  .box { margin:20px auto; padding:20px; border:1px solid #444; border-radius:10px; max-width:350px; background:#222; }
-  button { padding:10px 20px; margin:10px; font-size:16px; border:none; border-radius:6px; cursor:pointer; }
+  body { font-family: Arial, sans-serif; background:#0f1117; color:#f1f1f1; text-align:center; padding:20px; }
+  h1 { font-size:24px; margin-bottom:20px; }
+  h2 { margin:10px 0; }
+  .section { margin:25px auto; padding:20px; border:1px solid #333; border-radius:12px; max-width:400px; background:#1a1f29; box-shadow:0 4px 10px rgba(0,0,0,0.4);}
+  .stats { font-size:15px; margin:10px 0; }
+  button { padding:10px 16px; margin:6px; font-size:15px; border:none; border-radius:8px; cursor:pointer; }
   .default { background:#e30613; color:white; }
   .custom { background:#444; color:white; }
-  .reset { background:#555; color:white; margin-top:10px; }
-  input { padding:10px; margin-top:10px; border-radius:6px; border:1px solid #666; width:150px; }
+  .reset { background:#666; color:white; margin-top:10px; }
+  input { padding:10px; margin-top:8px; border-radius:6px; border:1px solid #666; width:160px; }
 </style>
 </head>
 <body>
   <h1>📊 Suivi des ventes RG.card</h1>
 
-  <div class="box">
-    <h2>Bilan</h2>
-    <p>Ventes effectuées : <span id="sold">0</span></p>
-    <p>Chiffre d’affaires : <span id="revenue">0.00</span> €</p>
-    <p>Mise de départ : -85.00 €</p>
-    <p>Solde actuel : <span id="balance">-85.00</span> €</p>
+  <!-- Plaques NFC -->
+  <div class="section">
+    <h2>🟦 Plaques NFC</h2>
+    <div class="stats">Mise de départ : -85.00 €</div>
+    <div class="stats">Ventes effectuées : <span id="soldPlaque">0</span></div>
+    <div class="stats">Chiffre d’affaires : <span id="revPlaque">0.00</span> €</div>
+    <div class="stats">Solde actuel : <span id="balPlaque">-85.00</span> €</div>
+    <button class="default" onclick="addPlaque(35)">+ Plaque (35 €)</button>
+    <button class="reset" onclick="resetPlaque()">🔄 Remise à zéro</button>
   </div>
 
-  <div class="box">
-    <button type="button" class="default" onclick="addSale(35)">+ Vente (35 €)</button><br>
-    <input id="customPrice" type="number" placeholder="Prix perso (€)">
-    <button type="button" class="custom" onclick="addCustomSale()">+ Vente (prix perso)</button><br>
-    <button type="button" class="reset" onclick="resetAll()">🔄 Remise à zéro</button>
+  <!-- Cartes NFC -->
+  <div class="section">
+    <h2>🟥 Cartes NFC</h2>
+    <div class="stats">Coût de base fabrication : 1 €</div>
+    <div class="stats">+ Gravure laser : 10 € (option)</div>
+    <div class="stats">+ Mini-site : 10 € (option)</div>
+    <div class="stats">Ventes effectuées : <span id="soldCard">0</span></div>
+    <div class="stats">Chiffre d’affaires : <span id="revCard">0.00</span> €</div>
+    <div class="stats">Coûts totaux : <span id="costCard">0.00</span> €</div>
+    <div class="stats">Profit : <span id="profitCard">0.00</span> €</div>
+    <input id="priceCard" type="number" placeholder="Prix de vente (€)">
+    <br>
+    <label><input type="checkbox" id="laser"> Gravure (+10 €)</label><br>
+    <label><input type="checkbox" id="site"> Mini-site (+10 €)</label><br>
+    <button class="custom" onclick="addCard()">+ Carte NFC</button>
+    <button class="reset" onclick="resetCard()">🔄 Remise à zéro</button>
   </div>
 
 <script>
-let invest = 85.00;
-let sold = 0;
-let revenue = 0;
+// ---------- PLAQUES ----------
+let plaqueSold = parseInt(localStorage.getItem("plaqueSold")) || 0;
+let plaqueRevenue = parseFloat(localStorage.getItem("plaqueRevenue")) || 0;
+let plaqueInvest = 85;
 
-// Charger les données si elles existent
-if(localStorage.getItem("sold")) sold = parseInt(localStorage.getItem("sold"));
-if(localStorage.getItem("revenue")) revenue = parseFloat(localStorage.getItem("revenue"));
-
-function updateDisplay(){
-  document.getElementById("sold").textContent = sold;
-  document.getElementById("revenue").textContent = revenue.toFixed(2);
-  document.getElementById("balance").textContent = (revenue - invest).toFixed(2);
-  // Sauvegarder dans localStorage
-  localStorage.setItem("sold", sold);
-  localStorage.setItem("revenue", revenue);
+function updatePlaque(){
+  document.getElementById("soldPlaque").textContent = plaqueSold;
+  document.getElementById("revPlaque").textContent = plaqueRevenue.toFixed(2);
+  document.getElementById("balPlaque").textContent = (plaqueRevenue - plaqueInvest).toFixed(2);
+  localStorage.setItem("plaqueSold", plaqueSold);
+  localStorage.setItem("plaqueRevenue", plaqueRevenue);
+}
+function addPlaque(price){
+  plaqueSold++;
+  plaqueRevenue += price;
+  updatePlaque();
+}
+function resetPlaque(){
+  plaqueSold = 0; plaqueRevenue = 0; updatePlaque();
 }
 
-function addSale(price){
-  sold++;
-  revenue += price;
-  updateDisplay();
+// ---------- CARTES ----------
+let cardSold = parseInt(localStorage.getItem("cardSold")) || 0;
+let cardRevenue = parseFloat(localStorage.getItem("cardRevenue")) || 0;
+let cardCost = parseFloat(localStorage.getItem("cardCost")) || 0;
+
+function updateCard(){
+  document.getElementById("soldCard").textContent = cardSold;
+  document.getElementById("revCard").textContent = cardRevenue.toFixed(2);
+  document.getElementById("costCard").textContent = cardCost.toFixed(2);
+  document.getElementById("profitCard").textContent = (cardRevenue - cardCost).toFixed(2);
+  localStorage.setItem("cardSold", cardSold);
+  localStorage.setItem("cardRevenue", cardRevenue);
+  localStorage.setItem("cardCost", cardCost);
 }
 
-function addCustomSale(){
-  let p = parseFloat(document.getElementById("customPrice").value);
-  if(p > 0){
-    sold++;
-    revenue += p;
-    updateDisplay();
-    document.getElementById("customPrice").value = "";
-  } else {
-    alert("Entre un prix valide !");
-  }
+function addCard(){
+  let price = parseFloat(document.getElementById("priceCard").value);
+  if(!(price>0)){ alert("Entre un prix valide"); return; }
+  let cost = 1;
+  if(document.getElementById("laser").checked) cost += 10;
+  if(document.getElementById("site").checked) cost += 10;
+  cardSold++;
+  cardRevenue += price;
+  cardCost += cost;
+  updateCard();
+  document.getElementById("priceCard").value="";
+  document.getElementById("laser").checked=false;
+  document.getElementById("site").checked=false;
+}
+function resetCard(){
+  cardSold = 0; cardRevenue = 0; cardCost=0; updateCard();
 }
 
-function resetAll(){
-  sold = 0;
-  revenue = 0;
-  updateDisplay();
-}
-
-// Mise à jour initiale
-updateDisplay();
+// Initial update
+updatePlaque();
+updateCard();
 </script>
 </body>
 </html>
