@@ -1,1 +1,40 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<title>RG.card - Suivi simple</title>
+<style>
+  body { font-family: Arial, sans-serif; background:#111; color:#fff; text-align:center; padding:20px; }
+  h1 { font-size:22px; }
+  .box { margin:20px auto; padding:20px; border:1px solid #444; border-radius:10px; max-width:350px; background:#222; }
+  button { padding:10px 20px; margin:10px; font-size:16px; border:none; border-radius:6px; cursor:pointer; }
+  .default { background:#e30613; color:white; }
+  .custom { background:#444; color:white; }
+  input { padding:10px; margin-top:10px; border-radius:6px; border:1px solid #666; width:150px; }
+</style>
+</head>
+<body>
+  <h1>📊 Suivi des ventes RG.card</h1>
 
+  <div class="box">
+    <h2>Solde actuel</h2>
+    <p id="balance">-85.00 €</p>
+  </div>
+
+  <div class="box">
+    <button type="button" class="default"
+      onclick="balance+=35; document.getElementById('balance').textContent=balance.toFixed(2)+' €';">
+      + Vente (35 €)
+    </button><br>
+    <input id="customPrice" type="number" placeholder="Prix perso (€)">
+    <button type="button" class="custom"
+      onclick="let p=parseFloat(document.getElementById('customPrice').value); if(p>0){balance+=p; document.getElementById('balance').textContent=balance.toFixed(2)+' €'; document.getElementById('customPrice').value='';}">
+      + Vente (prix perso)
+    </button>
+  </div>
+
+<script>
+var balance = -85.00; // Mise de départ
+</script>
+</body>
+</html>
